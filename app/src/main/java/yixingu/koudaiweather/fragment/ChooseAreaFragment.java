@@ -36,9 +36,9 @@ import yixingu.koudaiweather.util.Utility;
  */
 
 public class ChooseAreaFragment extends Fragment {
-    public static final int LEVEL_PROVINCE = 0;
-    public static final int LEVEL_CITY = 1;
-    public static final int LEVEL_COUNTY = 2;
+    private static final int LEVEL_PROVINCE = 0;
+    private static final int LEVEL_CITY = 1;
+    private static final int LEVEL_COUNTY = 2;
 
     private ProgressDialog progressDialog;
     private TextView titleText;
@@ -215,7 +215,7 @@ public class ChooseAreaFragment extends Fragment {
         if(progressDialog == null){
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("正在加载...");
-            progressDialog.setCancelable(false);
+            progressDialog.setCancelable(true);
         }
         progressDialog.show();
     }
