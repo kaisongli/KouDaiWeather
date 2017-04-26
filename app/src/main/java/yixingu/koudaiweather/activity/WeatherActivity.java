@@ -1,15 +1,20 @@
 package yixingu.koudaiweather.activity;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import org.w3c.dom.Text;
 
@@ -28,7 +33,9 @@ public class WeatherActivity extends AppCompatActivity {
 
     private static final String HEWEATHER_URL = "https://free-api.heweather.com/v5/";
     private static final String HEWEATHER_KEY = "a79b7622c8384bb59c5fb9b91b7debd2";
+    private static final String BINGPIC_URL = "http://guolin.tech/api/bing_pic";
 
+    private ImageView bingPicImg;
     private ScrollView weatherLayout;
     private TextView titleCity;
     private TextView titleUpdateTime;
@@ -44,12 +51,19 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //背景图和状态栏融合
+        if(Build.VERSION.SDK_INT >= 21){
+            View decoreView = getWindow().getDecorView();
+            decoreView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
         setContentView(R.layout.activity_weather);
         //初始化各控件
         initView();
     }
 
     private void initView() {
+        bingPicImg = (ImageView)findViewById(R.id.bing_pic_img);
         weatherLayout = (ScrollView)findViewById(R.id.weather_layout);
         titleCity = (TextView) findViewById(R.id.title_city);
         titleUpdateTime = (TextView) findViewById(R.id.title_update_time);
@@ -64,6 +78,13 @@ public class WeatherActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        String bingPic = sharedPreferences.getString("bing_pic",null);
+        if(bingPic != null){
+
+            Glide.with(this).load(bingPic).into(bingPicImg);
+        }else{
+            loadBingPic();
+        }
         String weatherString = sharedPreferences.getString("weather",null);
         if(weatherString != null){
             //有缓存时
@@ -74,6 +95,32 @@ public class WeatherActivity extends AppCompatActivity {
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
+    }
+
+    /*
+    * 加载每背景图片
+    * */
+    private void loadBingPic() {
+        HttpUtil.sendOkHttpRequests(BINGPIC_URL, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String bingPic = response.body().string();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                editor.putString("bing_pic",bingPic);
+                editor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
+                    }
+                });
+            }
+        });
     }
 
     /*
@@ -111,6 +158,8 @@ public class WeatherActivity extends AppCompatActivity {
                 });
             }
         });
+        //加载背景图
+        loadBingPic();
     }
 
     /*
