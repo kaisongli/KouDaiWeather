@@ -2,6 +2,7 @@ package yixingu.koudaiweather.fragment;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import yixingu.koudaiweather.R;
+import yixingu.koudaiweather.activity.WeatherActivity;
 import yixingu.koudaiweather.db.City;
 import yixingu.koudaiweather.db.County;
 import yixingu.koudaiweather.db.Province;
@@ -79,6 +81,12 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevle == LEVEL_CITY){
                     selectedCity = cityList.get(position);
                     queryCounties();
+                }else if(currentLevle == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id", weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
