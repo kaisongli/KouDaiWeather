@@ -6,19 +6,32 @@
     android:layout_margin="15dp">
 
     <TextView
-        android:id="@+id/degree_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:textColor="#fff"
-        android:textSize="60sp"/>
-
-    <TextView
         android:id="@+id/weather_info_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:textColor="#fff"
+        android:layout_gravity="center"
+        android:textColor="@android:color/white"
         android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/degree_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="120sp"/>
+
+    <Button
+        android:layout_width="90dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:id="@+id/aqi_btn"
+        android:background="@drawable/aqi_btn_bg"
+        android:text="aqi"
+        android:textColor="@android:color/white"
+        android:drawableLeft="@drawable/ic_aqi"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"/>
+
 
 </LinearLayout>

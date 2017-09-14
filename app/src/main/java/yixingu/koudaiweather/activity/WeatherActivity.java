@@ -26,34 +26,56 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import me.yokeyword.fragmentation.SupportActivity;
+import me.yokeyword.fragmentation.SupportFragment;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import yixingu.koudaiweather.AutoUpdateService;
 import yixingu.koudaiweather.R;
+import yixingu.koudaiweather.fragment.AqiFragment;
 import yixingu.koudaiweather.gson.Forecast;
 import yixingu.koudaiweather.gson.Weather;
 import yixingu.koudaiweather.util.ConfigUtil;
 import yixingu.koudaiweather.util.HttpUtil;
 import yixingu.koudaiweather.util.Utility;
 
-public class WeatherActivity extends AppCompatActivity {
+public class WeatherActivity extends SupportActivity {
 
-    private ImageView bingPicImg;
+    @BindView(R.id.bing_pic_img)
+    ImageView bingPicImg;
+    @BindView(R.id.drawer_layout)
     public DrawerLayout drawerLayout;
-    private Button navButton;
+    @BindView(R.id.nav_button)
+    Button navButton;
+    @BindView(R.id.swipe_refresh)
     public SwipeRefreshLayout swipeRefreshLayout;
-    private ScrollView weatherLayout;
-    private TextView titleCity;
-    private TextView titleUpdateTime;
-    private TextView degreeText;
-    private TextView weatherInfoText;
-    private LinearLayout forecastLayout;
-    private TextView aqiText;
-    private TextView pm25Text;
-    private TextView comfortText;
-    private TextView carWashText;
-    private TextView sportText;
+    @BindView(R.id.weather_layout)
+    ScrollView weatherLayout;
+    @BindView(R.id.title_city)
+    TextView titleCity;
+    @BindView(R.id.degree_text)
+    TextView degreeText;
+    @BindView(R.id.weather_info_text)
+    TextView weatherInfoText;
+    @BindView(R.id.forecast_layout)
+    LinearLayout forecastLayout;
+    @BindView(R.id.aqi_btn)
+    Button aqiutton;
+    @BindView(R.id.aqi_text)
+    TextView aqiText;
+    @BindView(R.id.pm25_text)
+    TextView pm25Text;
+    @BindView(R.id.comfort_text)
+    TextView comfortText;
+    @BindView(R.id.car_wash_text)
+    TextView carWashText;
+    @BindView(R.id.sport_text)
+    TextView sportText;
+
+    private Weather weather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,29 +87,15 @@ public class WeatherActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
         setContentView(R.layout.activity_weather);
+        ButterKnife.bind(this);
         //初始化各控件
         initView();
     }
 
     @SuppressLint("ResourceAsColor")
     private void initView() {
-        bingPicImg = (ImageView)findViewById(R.id.bing_pic_img);
-        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        navButton = (Button)findViewById(R.id.nav_button);
-        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
-        weatherLayout = (ScrollView)findViewById(R.id.weather_layout);
-        titleCity = (TextView) findViewById(R.id.title_city);
-        titleUpdateTime = (TextView) findViewById(R.id.title_update_time);
-        degreeText = (TextView) findViewById(R.id.degree_text);
-        weatherInfoText = (TextView) findViewById(R.id.weather_info_text);
-        forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
-        aqiText = (TextView) findViewById(R.id.aqi_text);
-        pm25Text = (TextView) findViewById(R.id.pm25_text);
-        comfortText = (TextView) findViewById(R.id.comfort_text);
-        carWashText = (TextView) findViewById(R.id.car_wash_text);
-        sportText = (TextView)findViewById(R.id.sport_text);
 
-        swipeRefreshLayout.setColorSchemeColors(R.color.colorPrimary);
+//        swipeRefreshLayout.setColorSchemeColors(R.color.colorPrimary);
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,7 +116,7 @@ public class WeatherActivity extends AppCompatActivity {
         final String weatherId;
         if(weatherString != null){
             //有缓存时
-            Weather weather = Utility.handleWeatherResponse(weatherString);
+            weather = Utility.handleWeatherResponse(weatherString);
             weatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
         }else{
@@ -203,11 +211,12 @@ public class WeatherActivity extends AppCompatActivity {
         }
         String cityName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1];
-        String degree = weather.now.temperature + "℃";
+        String degree = weather.now.temperature + "°";
         String weatherInfo = weather.now.more.info;
 
         titleCity.setText(cityName);
-        titleUpdateTime.setText(updateTime);
+//        titleUpdateTime.setText(updateTime);
+        Toast.makeText(this, "天气更新时间："+updateTime, Toast.LENGTH_SHORT).show();
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
         forecastLayout.removeAllViews();
@@ -226,6 +235,13 @@ public class WeatherActivity extends AppCompatActivity {
         if (weather.aqi != null) {
             aqiText.setText(weather.aqi.city.aqi);
             pm25Text.setText(weather.aqi.city.pm25);
+            aqiutton.setText(weather.aqi.city.aqi + " "+weather.aqi.city.qlty);
+            aqiutton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    start(new AqiFragment());
+                }
+            });
         }
         String comfort = "舒适度" + weather.suggestion.comfort.info;
         String carWash = "洗车指数" + weather.suggestion.carWash.info;
